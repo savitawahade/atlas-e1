@@ -1,0 +1,13 @@
+import fs from 'node:fs';
+import {build} from 'esbuild';
+const read=p=>fs.readFileSync(p,'utf8');
+const font=(family,file,weight)=>`@font-face{font-family:'${family}';font-weight:${weight};font-style:normal;font-display:block;src:url(data:font/woff2;base64,${fs.readFileSync(file).toString('base64')}) format('woff2');}`;
+const fonts=[400,600,700].map(w=>font('JetBrains Mono',`node_modules/@fontsource/jetbrains-mono/files/jetbrains-mono-latin-${w}-normal.woff2`,w)).join('\n')+font('Inter','node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2','100 900');
+const result=await build({entryPoints:['src/main.js'],bundle:true,format:'esm',minify:true,write:false,target:'es2022',legalComments:'eof',loader:{'.woff2':'base64'}});
+const js=result.outputFiles[0].text.replace(/<\/script/g,'<\\/script');
+fs.mkdirSync('docs/licenses',{recursive:true});
+fs.writeFileSync('docs/index.html',`<!doctype html><html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover"><meta name="description" content="Explore ATLAS E-1, an interactive mechanical elephant. Open individual trunk mechanisms, inspect wireframes, tear down, reassemble and walk."><title>ATLAS E-1 · The Kinetic Collection</title><style>${fonts}\n${read('vendor/teardown.css')}\n${read('src/style.css')}</style></head><body><div id="app"></div><script type="module">${js}</script></body></html>`);
+fs.writeFileSync('docs/.nojekyll','');
+for(const [from,to] of [['vendor/TEARDOWN-LICENSE','TEARDOWN.txt'],['node_modules/three/LICENSE','THREE.txt'],['node_modules/@fontsource-variable/inter/LICENSE','Inter.txt'],['node_modules/@fontsource/jetbrains-mono/LICENSE','JetBrains-Mono.txt']])fs.copyFileSync(from,`docs/licenses/${to}`);
+for(const name of fs.readdirSync('src/fonts').filter(n=>n.startsWith('LICENSE')))fs.copyFileSync(`src/fonts/${name}`,`docs/licenses/${name}`);
+console.log('Built docs/index.html');

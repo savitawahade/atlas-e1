@@ -1,0 +1,20 @@
+{
+  "name": "atlas-e1",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "ATLAS E-1 \u2014 interactive mechanical elephant and trunk mechanism study",
+  "scripts": {
+    "build": "node build.mjs",
+    "test": "node src/check.mjs && node src/check-mechanism-motion.mjs && node src/check-telemetry.mjs && node src/check-trunk-motion.mjs && node src/check-trunk-study.mjs",
+    "preview": "python3 -m http.server 4174 --directory docs"
+  },
+  "dependencies": {
+    "three": "0.186.1"
+  },
+  "devDependencies": {
+    "esbuild": "0.28.1",
+    "@fontsource-variable/inter": "5.3.0",
+    "@fontsource/jetbrains-mono": "5.3.0"
+  }
+}
